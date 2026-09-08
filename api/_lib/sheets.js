@@ -7,7 +7,7 @@ const LOCAL_DATA_FILE = path.join(__dirname, "../../data/registros.json");
 
 // Formato público da planilha (A até E).
 const HEADERS = [
-  "Data",
+  "DataHora",
   "Nome",
   "Inconformidade",
   "Cliente",
@@ -54,15 +54,18 @@ async function ensureHeader(sheets, spreadsheetId, tab) {
   const row = res.data.values && res.data.values[0];
   if (!row || row.join("\u001f") !== HEADERS.join("\u001f")) {
     const oldRows = (res.data.values || []).slice(1).filter((item) => item && item.length);
-    const migratedRows = oldRows
-      .filter((item) => item[0])
-      .map((item) => [
-        item[3] || item[0] || "",
+    const currentHeaders = row || [];
+    const isCompactSheet = currentHeaders[0] === "Data" && currentHeaders[1] === "Nome" && currentHeaders[2] === "Inconformidade";
+    const migratedRows = oldRows.filter((item) => item[0]).map((item) => {
+      if (isCompactSheet) return [item[0] || "", item[1] || "", item[2] || "", item[3] || "", item[4] || ""];
+      return [
+        [item[3] || item[0] || "", item[4] || ""].filter(Boolean).join(" "),
         item[1] || "",
         [item[6], item[7]].filter(Boolean).join(": ") || item[2] || "",
         item[8] || "",
         item[11] || "",
-      ]);
+      ];
+    });
 
     await sheets.spreadsheets.values.clear({ spreadsheetId, range: `${tab}!A:O`, requestBody: {} });
     await sheets.spreadsheets.values.update({
@@ -83,14 +86,15 @@ async function ensureHeader(sheets, spreadsheetId, tab) {
 }
 
 function rowToObject(row) {
-  const [data, responsavel, inconformidade, cliente, observacao] = row;
+  const [dataHora, responsavel, inconformidade, cliente, observacao] = row;
+  const dataHoraMatch = String(dataHora || "").match(/^(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}:\d{2}))?/);
   const separator = inconformidade ? inconformidade.indexOf(": ") : -1;
   return {
     id: `INC-${new Date().getFullYear()}-${String(row._rowNumber || 0).padStart(5, "0")}`,
     responsavel: responsavel || "",
     setor: "",
-    data: data || "",
-    hora: "",
+    data: dataHoraMatch ? dataHoraMatch[1] : dataHora || "",
+    hora: dataHoraMatch?.[2] || "",
     local: "",
     causa: separator >= 0 ? inconformidade.slice(0, separator) : inconformidade || "",
     descricao: separator >= 0 ? inconformidade.slice(separator + 2) : inconformidade || "",
@@ -106,7 +110,7 @@ function rowToObject(row) {
 
 function objectToRow(obj) {
   return [
-    obj.data,
+    [obj.data, obj.hora].filter(Boolean).join(" "),
     obj.responsavel,
     [obj.causa, obj.descricao].filter(Boolean).join(": "),
     obj.cliente,
