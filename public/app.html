@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controle de Inconformidades | Lajeadense Vidros</title>
+  <link rel="icon" href="assets/logo-empresa-transparent.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/vendor/chart.umd.js"></script>
+</head>
+<body>
+
+  <!-- Topbar mobile -->
+  <div class="mobile-topbar">
+    <div class="flex items-center gap-8">
+      <img src="assets/logo-empresa-transparent.png" alt="Lajeadense Vidros" style="height:42px;width:auto;max-width:180px;object-fit:contain;filter:drop-shadow(0 0 1px rgba(255,255,255,.9));" />
+    </div>
+    <button class="icon-btn" id="btn-sair-mobile" title="Sair" style="background:transparent;border-color:rgba(255,255,255,.25);color:#fff;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+    </button>
+    <button class="icon-btn theme-toggle theme-toggle-mobile" id="btn-theme-mobile" type="button" title="Ativar tema escuro" aria-label="Ativar tema escuro"></button>
+  </div>
+  <nav class="mobile-nav" id="mobile-nav"></nav>
+
+  <div class="app-shell">
+    <!-- Sidebar desktop -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="assets/logo-empresa-transparent.png" alt="Lajeadense Vidros" />
+      </div>
+
+      <div class="sidebar-user" id="sidebar-user">
+        <div class="avatar" id="user-avatar">--</div>
+        <div class="who">
+          <div class="name" id="user-name">—</div>
+          <div class="role" id="user-role">—</div>
+        </div>
+      </div>
+
+      <div class="nav" id="sidebar-nav"></div>
+
+      <div class="sidebar-foot">
+        <button class="nav-item" id="btn-sair">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+          Sair
+        </button>
+      </div>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="content">
+      <div class="topbar">
+        <div>
+          <h1 id="view-title">Registrar Inconformidade</h1>
+          <div class="sub" id="view-sub">Preencha os dados abaixo para registrar uma nova ocorrência.</div>
+        </div>
+        <div class="flex items-center gap-8">
+          <button class="btn btn-secondary btn-sm theme-toggle" id="btn-theme" type="button" title="Ativar tema escuro" aria-label="Ativar tema escuro"></button>
+          <button class="btn btn-secondary btn-sm" id="btn-refresh" title="Atualizar dados">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M21 2v6h-6M3 22v-6h6"/><path d="M3.5 9A9 9 0 0 1 20 6.3M20.5 15a9 9 0 0 1-16.5 2.7"/></svg>
+            Atualizar
+          </button>
+        </div>
+      </div>
+
+      <!-- ============ VIEW: REGISTRAR ============ -->
+      <section class="view" id="view-registrar">
+        <div id="registrar-form-wrap" class="card form-grid">
+          <div class="card-header">
+            <div>
+              <h2>Nova inconformidade</h2>
+              <div class="sub">Os campos com <span class="required-mark">*</span> são obrigatórios.</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <form id="registrar-form" novalidate>
+              <div class="section-label">Identificação</div>
+              <div class="field-row">
+                <div class="field">
+                  <label>Responsável</label>
+                  <input class="input" type="text" id="r-responsavel" disabled />
+                </div>
+                <div class="field">
+                  <label>Setor</label>
+                  <select class="input" id="r-setor"></select>
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label>Data</label>
+                  <input class="input" type="date" id="r-data" />
+                </div>
+                <div class="field">
+                  <label>Hora</label>
+                  <input class="input" type="time" id="r-hora" />
+                </div>
+              </div>
+
+              <div class="section-label">Ocorrência</div>
+              <div class="field-row">
+                <div class="field" id="field-r-local">
+                  <label>Local</label>
+                  <input class="input" type="text" id="r-local" placeholder="Ex.: Corte, Expedição, Box 3..." />
+                </div>
+                <div class="field" id="field-r-causa">
+                  <label>Causa da inconformidade <span class="required-mark">*</span></label>
+                  <select class="input" id="r-causa">
+                    <option value="" disabled selected>Selecione a causa</option>
+                  </select>
+                  <span class="field-error">Selecione a causa.</span>
+                </div>
+              </div>
+
+              <div class="field" id="field-r-causa-outro" hidden>
+                <label>Descreva a causa <span class="opt">(campo "Outro")</span></label>
+                <input class="input" type="text" id="r-causa-outro" placeholder="Especifique a causa" />
+              </div>
+
+              <div class="field" id="field-r-descricao">
+                <label>Descrição <span class="required-mark">*</span></label>
+                <textarea class="input" id="r-descricao" placeholder="Descreva o que aconteceu..."></textarea>
+                <span class="field-error">Descreva o que aconteceu.</span>
+              </div>
+
+              <div class="section-label">Informações complementares</div>
+              <div class="field-row">
+                <div class="field" id="field-r-cliente">
+                  <label>Cliente <span class="required-mark">*</span></label>
+                  <input class="input" type="text" id="r-cliente" placeholder="Nome do cliente" required />
+                </div>
+                <div class="field">
+                  <label>Nº Pedido/Orçamento <span class="opt">(opcional)</span></label>
+                  <input class="input" type="text" id="r-pedido" placeholder="Ex. 45572" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Foto <span class="opt">(opcional)</span></label>
+                <label class="photo-drop" id="photo-drop" for="r-foto">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h3l2-3h6l2 3h3v13H4Z"/><circle cx="12" cy="13" r="3.5"/></svg>
+                  <span class="txt"><strong>Clique para adicionar</strong> ou arraste uma imagem</span>
+                </label>
+                <input type="file" id="r-foto" accept="image/*" class="visually-hidden" />
+                <div class="photo-preview" id="photo-preview">
+                  <img id="photo-preview-img" alt="" />
+                  <div class="meta" id="photo-preview-meta"></div>
+                  <button type="button" class="icon-btn" id="photo-remove">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Observação <span class="opt">(opcional)</span></label>
+                <textarea class="input" id="r-observacao" placeholder="Informações adicionais..."></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary" id="btn-registrar" style="margin-top:6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                <span class="btn-label">Registrar Inconformidade</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Tela de confirmação -->
+        <div class="confirm-wrap" id="confirm-wrap" hidden>
+          <div class="card confirm-card">
+            <div class="check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <h2>Inconformidade registrada com sucesso!</h2>
+            <p>O registro foi salvo em nosso sistema.</p>
+            <div class="confirm-id">
+              <span id="confirm-id-value">INC-2026-00000</span>
+              <button class="icon-btn" id="confirm-copy" title="Copiar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+              </button>
+            </div>
+            <div class="confirm-actions">
+              <button class="btn btn-primary btn-block" id="btn-registrar-outra">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="15" height="15"><path d="M5 12h14M12 5v14"/></svg>
+                Registrar outra
+              </button>
+              <button class="btn btn-secondary btn-block" id="btn-voltar-inicio">Voltar ao início</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW: MINHAS INCONFORMIDADES ============ -->
+      <section class="view" id="view-minhas" hidden>
+        <div class="card">
+          <div class="card-header">
+            <div class="toolbar" style="flex:1;">
+              <div class="search-input">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input class="input" type="search" id="m-busca" placeholder="Buscar por nº, descrição, cliente..." />
+              </div>
+              <select class="input" id="m-periodo">
+                <option value="30">Últimos 30 dias</option>
+                <option value="90">Últimos 90 dias</option>
+                <option value="365">Último ano</option>
+                <option value="all" selected>Todo período</option>
+              </select>
+              <select class="input" id="m-setor">
+                <option value="">Setor: Todos</option>
+              </select>
+              <select class="input" id="m-status">
+                <option value="">Status: Todos</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btn-novo-de-minhas">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><path d="M5 12h14M12 5v14"/></svg>
+              Novo Inconformidade
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Nº</th>
+                  <th>Data</th>
+                  <th>Causa</th>
+                  <th class="wrap">Descrição</th>
+                  <th>Setor</th>
+                  <th>Local</th>
+                  <th>Cliente</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="m-tbody">
+                <tr><td colspan="8"><div class="skeleton" style="height:18px;"></div></td></tr>
+              </tbody>
+            </table>
+            <div class="table-empty" id="m-empty" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+              <div>Nenhuma inconformidade encontrada.</div>
+            </div>
+          </div>
+          <div class="table-foot">
+            <span id="m-count">Mostrando 0 de 0 registros</span>
+            <div class="pagination" id="m-pagination"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW: PAINEL ============ -->
+      <section class="view" id="view-painel" hidden>
+        <div class="kpi-grid">
+          <div class="kpi-tile kpi-total">
+            <div class="top"><span class="label">Total de registros</span>
+              <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></span>
+            </div>
+            <div class="value" id="kpi-total">0</div>
+          </div>
+          <div class="kpi-tile kpi-abertas">
+            <div class="top"><span class="label">Abertas</span>
+              <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>
+            </div>
+            <div class="value" id="kpi-abertas">0</div>
+          </div>
+          <div class="kpi-tile kpi-resolvidas">
+            <div class="top"><span class="label">Resolvidas</span>
+              <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg></span>
+            </div>
+            <div class="value" id="kpi-resolvidas">0</div>
+          </div>
+        </div>
+
+        <div class="panel-grid">
+          <div class="card chart-card">
+            <h3>Inconformidades por causa</h3>
+            <div class="sub">Distribuição das ocorrências por causa raiz</div>
+            <div class="bar-list" id="chart-causas"></div>
+          </div>
+          <div class="card chart-card">
+            <h3>Inconformidades por setor</h3>
+            <div class="sub" id="chart-setor-total">0 total</div>
+            <div class="chart-canvas-wrap"><canvas id="chart-setor"></canvas></div>
+            <div class="chart-legend" id="chart-setor-legend"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h2>Últimas inconformidades</h2>
+              <div class="sub">Registros mais recentes de todos os setores</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="btn-ver-todas">Ver todas →</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>Nº</th><th>Data</th><th>Causa</th><th>Setor</th><th>Local</th><th>Cliente</th><th>Status</th></tr>
+              </thead>
+              <tbody id="p-tbody">
+                <tr><td colspan="7"><div class="skeleton" style="height:18px;"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal de detalhe -->
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-title">INC-2026-00000</h2>
+          <div class="sub" id="modal-sub">—</div>
+        </div>
+        <button class="modal-close" id="modal-close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
+  <div class="toast-stack"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

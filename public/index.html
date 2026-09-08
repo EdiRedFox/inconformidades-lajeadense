@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controle de Inconformidades | Lajeadense Vidros</title>
+  <meta name="description" content="Registro e acompanhamento de inconformidades - Lajeadense Vidros" />
+  <link rel="icon" href="assets/logo-empresa-transparent.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="id-screen">
+    <div class="id-hero">
+      <img src="assets/logo-empresa-transparent.png" alt="Lajeadense Vidros" />
+    </div>
+
+    <div class="id-copy">
+      <span class="eyebrow">Qualidade e melhoria contínua</span>
+      <h1>Controle de Inconformidades<br />Lajeadense Vidros</h1>
+      <p>Registre ocorrências, acompanhe o andamento e visualize os indicadores de qualidade em um só lugar — do chão de fábrica ao painel de gestão.</p>
+    </div>
+
+    <div class="id-tagline">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 6v6c0 5 3.8 8.4 9 10 5.2-1.6 9-5 9-10V6l-9-4Z"/><path d="m9 12 2 2 4-4"/></svg>
+      <span>Juntos por mais qualidade e transparência.</span>
+    </div>
+
+    <div class="id-card">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <h2>Identifique-se</h2>
+      <p class="sub">Para registrar uma inconformidade, informe seu nome e setor.</p>
+
+      <form id="identify-form" novalidate>
+        <div class="field" id="field-nome">
+          <label for="nome">Nome</label>
+          <div class="input-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input class="input" type="text" id="nome" name="nome" placeholder="Seu nome completo" autocomplete="name" required />
+          </div>
+          <span class="field-error">Informe seu nome.</span>
+        </div>
+
+        <div class="field" id="field-setor">
+          <label for="setor">Setor</label>
+          <div class="input-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1m4 0h1m-6 4h1m4 0h1m-6 4h1m4 0h1"/></svg>
+            <select class="input" id="setor" name="setor" required>
+              <option value="" disabled selected>Selecione seu setor</option>
+            </select>
+          </div>
+          <span class="field-error">Selecione seu setor.</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="btn-continuar">
+          <span class="btn-label">Continuar</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="16" height="16"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/identify.js"></script>
+</body>
+</html>

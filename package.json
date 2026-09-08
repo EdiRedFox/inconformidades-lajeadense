@@ -1,0 +1,18 @@
+{
+  "name": "lajeadense-inconformidades",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Controle de Inconformidades - Lajeadense Vidros (micro SaaS com Google Sheets + Vercel)",
+  "scripts": {
+    "local": "vercel dev"
+  },
+  "dependencies": {
+    "googleapis": "^178.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "vercel": "^59.11.7"
+  }
+}
