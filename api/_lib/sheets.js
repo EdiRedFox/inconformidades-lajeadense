@@ -5,28 +5,14 @@ const path = require("path");
 
 const LOCAL_DATA_FILE = path.join(__dirname, "../../data/registros.json");
 
-// Ordem fixa das colunas na planilha (A até O). Se precisar adicionar um
-// campo novo no futuro, adicione-o no final da lista para não quebrar as
-// planilhas já existentes.
+// Formato público da planilha (A até E).
 const HEADERS = [
-  "Nº da Inconformidade",
-  "Responsável",
-  "Setor",
   "Data",
-  "Hora",
-  "Local",
-  "Causa da Inconformidade",
-  "Descrição",
+  "Nome",
+  "Inconformidade",
   "Cliente",
-  "Nº Pedido/Orçamento",
-  "Foto (link)",
-  "Observação",
-  "Prioridade",
-  "Status",
-  "Criado em",
 ];
-
-const STATUS_COLUMN = "N"; // 14ª coluna = "Status"
+const SHEET_RANGE = "A:E";
 
 function getConfig() {
   const spreadsheetId = process.env.GOOGLE_SHEET_ID;
@@ -63,55 +49,67 @@ function getSheetsClient() {
 }
 
 async function ensureHeader(sheets, spreadsheetId, tab) {
-  const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: `${tab}!A1:O1` });
+  const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: `${tab}!A1:O` });
   const row = res.data.values && res.data.values[0];
-  if (!row || row.length === 0 || !row[0]) {
+  if (!row || row.join("\u001f") !== HEADERS.join("\u001f")) {
+    const oldRows = (res.data.values || []).slice(1).filter((item) => item && item.length);
+    const migratedRows = oldRows
+      .filter((item) => item[0])
+      .map((item) => [
+        item[3] || item[0] || "",
+        item[1] || "",
+        [item[6], item[7]].filter(Boolean).join(": ") || item[2] || "",
+        item[8] || "",
+        item[11] || "",
+      ]);
+
+    await sheets.spreadsheets.values.clear({ spreadsheetId, range: `${tab}!A:O`, requestBody: {} });
     await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: `${tab}!A1:O1`,
+      range: `${tab}!A1:E1`,
       valueInputOption: "RAW",
       requestBody: { values: [HEADERS] },
     });
+    if (migratedRows.length) {
+      await sheets.spreadsheets.values.update({
+        spreadsheetId,
+        range: `${tab}!A2:E${migratedRows.length + 1}`,
+        valueInputOption: "RAW",
+        requestBody: { values: migratedRows },
+      });
+    }
   }
 }
 
 function rowToObject(row) {
+  const [data, responsavel, inconformidade, cliente, observacao] = row;
+  const separator = inconformidade ? inconformidade.indexOf(": ") : -1;
   return {
-    id: row[0] || "",
-    responsavel: row[1] || "",
-    setor: row[2] || "",
-    data: row[3] || "",
-    hora: row[4] || "",
-    local: row[5] || "",
-    causa: row[6] || "",
-    descricao: row[7] || "",
-    cliente: row[8] || "",
-    pedido: row[9] || "",
-    fotoUrl: row[10] || "",
-    observacao: row[11] || "",
-    prioridade: row[12] || "",
-    status: row[13] || "",
-    criadoEm: row[14] || "",
+    id: `INC-${new Date().getFullYear()}-${String(row._rowNumber || 0).padStart(5, "0")}`,
+    responsavel: responsavel || "",
+    setor: "",
+    data: data || "",
+    hora: "",
+    local: "",
+    causa: separator >= 0 ? inconformidade.slice(0, separator) : inconformidade || "",
+    descricao: separator >= 0 ? inconformidade.slice(separator + 2) : inconformidade || "",
+    cliente: cliente || "",
+    pedido: "",
+    fotoUrl: "",
+    observacao: observacao || "",
+    prioridade: "",
+    status: "Aberta",
+    criadoEm: "",
   };
 }
 
 function objectToRow(obj) {
   return [
-    obj.id,
-    obj.responsavel,
-    obj.setor,
     obj.data,
-    obj.hora,
-    obj.local,
-    obj.causa,
-    obj.descricao,
+    obj.responsavel,
+    [obj.causa, obj.descricao].filter(Boolean).join(": "),
     obj.cliente,
-    obj.pedido,
-    obj.fotoUrl,
     obj.observacao,
-    obj.prioridade,
-    obj.status,
-    obj.criadoEm,
   ];
 }
 
@@ -121,9 +119,9 @@ async function readAll() {
   const { spreadsheetId, tab } = getConfig();
   const sheets = getSheetsClient();
   await ensureHeader(sheets, spreadsheetId, tab);
-  const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: `${tab}!A2:O` });
+  const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: `${tab}!A2:E` });
   const rows = res.data.values || [];
-  return rows.filter((r) => r && r[0]).map(rowToObject);
+  return rows.filter((r) => r && r[0]).map((row, index) => rowToObject(Object.assign([...row], { _rowNumber: index + 2 })));
 }
 
 async function appendRegistro(obj) {
@@ -139,7 +137,7 @@ async function appendRegistro(obj) {
   await ensureHeader(sheets, spreadsheetId, tab);
   await sheets.spreadsheets.values.append({
     spreadsheetId,
-    range: `${tab}!A:O`,
+    range: `${tab}!${SHEET_RANGE}`,
     valueInputOption: "RAW",
     insertDataOption: "INSERT_ROWS",
     requestBody: { values: [objectToRow(obj)] },
@@ -156,21 +154,7 @@ async function updateStatus(id, status) {
     return;
   }
 
-  const { spreadsheetId, tab } = getConfig();
-  const sheets = getSheetsClient();
-  const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: `${tab}!A:A` });
-  const col = res.data.values || [];
-  const idx = col.findIndex((r) => r[0] === id);
-  if (idx === -1) {
-    throw new Error(`Registro ${id} não encontrado na planilha.`);
-  }
-  const rowNumber = idx + 1; // índice do array já corresponde ao número da linha (1-based)
-  await sheets.spreadsheets.values.update({
-    spreadsheetId,
-    range: `${tab}!${STATUS_COLUMN}${rowNumber}`,
-    valueInputOption: "RAW",
-    requestBody: { values: [[status]] },
-  });
+  throw new Error("A planilha configurada possui somente as colunas Data, Nome, Inconformidade, Cliente e Observações; status não é persistido nela.");
 }
 
 function nextId(existingIds) {
