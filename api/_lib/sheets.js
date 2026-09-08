@@ -11,6 +11,7 @@ const HEADERS = [
   "Nome",
   "Inconformidade",
   "Cliente",
+  "Observações",
 ];
 const SHEET_RANGE = "A:E";
 
