@@ -9,6 +9,7 @@ const empty = document.getElementById("admin-empty");
 const search = document.getElementById("admin-search");
 let registros = [];
 const STATUS_LIST = ["Aberta", "Pendente", "Em análise", "Em tratamento", "Resolvido", "Resolvida"];
+let statusChart = null;
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
@@ -67,13 +68,35 @@ function render() {
   const filtered = registros.filter((item) => [item.data, item.hora, item.responsavel, item.causa, item.descricao, item.cliente, item.observacao].join(" ").toLowerCase().includes(term));
   const clients = new Set(registros.map((item) => item.cliente).filter(Boolean));
   const causes = new Set(registros.map((item) => item.causa).filter(Boolean));
+  const open = registros.filter((item) => !["Resolvido", "Resolvida"].includes(item.status)).length;
+  const resolved = registros.filter((item) => ["Resolvido", "Resolvida"].includes(item.status)).length;
   document.getElementById("admin-total").textContent = registros.length;
+  document.getElementById("admin-open").textContent = open;
+  document.getElementById("admin-resolved").textContent = resolved;
   document.getElementById("admin-clients").textContent = clients.size;
   document.getElementById("admin-causes").textContent = causes.size;
   document.getElementById("admin-count").textContent = `${filtered.length} registro${filtered.length === 1 ? "" : "s"}`;
   empty.hidden = filtered.length > 0;
   tbody.innerHTML = filtered.map((item) => `<tr><td>${escapeHtml([item.data, item.hora].filter(Boolean).join(" "))}</td><td>${escapeHtml(item.responsavel)}</td><td>${escapeHtml([item.causa, item.descricao].filter(Boolean).join(": "))}</td><td>${escapeHtml(item.cliente)}</td><td>${escapeHtml(item.observacao || "-")}</td><td><select class="admin-status" data-id="${escapeHtml(item.id)}">${STATUS_LIST.map((status) => `<option value="${status}" ${status === (item.status || "Pendente") ? "selected" : ""}>${status}</option>`).join("")}</select></td></tr>`).join("");
   tbody.querySelectorAll(".admin-status").forEach((select) => select.addEventListener("change", () => updateStatus(select)));
+  renderIndicators();
+}
+
+function renderIndicators() {
+  const counts = {};
+  registros.forEach((item) => { const key = item.causa || "Outro"; counts[key] = (counts[key] || 0) + 1; });
+  const causes = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const max = causes[0]?.[1] || 1;
+  document.getElementById("admin-causes-chart").innerHTML = causes.length ? causes.map(([label, count]) => `<div class="admin-bar-row"><span title="${escapeHtml(label)}">${escapeHtml(label)}</span><i><b style="width:${Math.round((count / max) * 100)}%"></b></i><strong>${count}</strong></div>`).join("") : '<span class="admin-muted">Nenhum registro ainda.</span>';
+
+  const statusCounts = {};
+  registros.forEach((item) => { const key = item.status || "Pendente"; statusCounts[key] = (statusCounts[key] || 0) + 1; });
+  const labels = Object.keys(statusCounts);
+  const data = labels.map((label) => statusCounts[label]);
+  const colors = ["#2f80ed", "#e0a324", "#e8712a", "#1e9e5a", "#d11b24", "#8b929c"];
+  if (statusChart) statusChart.destroy();
+  statusChart = new Chart(document.getElementById("admin-status-chart"), { type: "doughnut", data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: "#fff" }] }, options: { cutout: "65%", plugins: { legend: { display: false } }, maintainAspectRatio: false } });
+  document.getElementById("admin-status-legend").innerHTML = labels.map((label, index) => `<span><i style="background:${colors[index]}"></i>${escapeHtml(label)} <strong>${data[index]}</strong></span>`).join("");
 }
 
 async function updateStatus(select) {
