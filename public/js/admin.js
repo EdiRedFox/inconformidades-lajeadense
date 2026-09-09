@@ -67,14 +67,12 @@ function render() {
   const term = search.value.trim().toLowerCase();
   const filtered = registros.filter((item) => [item.data, item.hora, item.responsavel, item.causa, item.descricao, item.cliente, item.observacao].join(" ").toLowerCase().includes(term));
   const clients = new Set(registros.map((item) => item.cliente).filter(Boolean));
-  const causes = new Set(registros.map((item) => item.causa).filter(Boolean));
   const open = registros.filter((item) => !["Resolvido", "Resolvida"].includes(item.status)).length;
   const resolved = registros.filter((item) => ["Resolvido", "Resolvida"].includes(item.status)).length;
   document.getElementById("admin-total").textContent = registros.length;
   document.getElementById("admin-open").textContent = open;
   document.getElementById("admin-resolved").textContent = resolved;
   document.getElementById("admin-clients").textContent = clients.size;
-  document.getElementById("admin-causes").textContent = causes.size;
   document.getElementById("admin-count").textContent = `${filtered.length} registro${filtered.length === 1 ? "" : "s"}`;
   empty.hidden = filtered.length > 0;
   tbody.innerHTML = filtered.map((item) => `<tr><td>${escapeHtml([item.data, item.hora].filter(Boolean).join(" "))}</td><td>${escapeHtml(item.responsavel)}</td><td>${escapeHtml([item.causa, item.descricao].filter(Boolean).join(": "))}</td><td>${escapeHtml(item.cliente)}</td><td>${escapeHtml(item.observacao || "-")}</td><td><select class="admin-status" data-id="${escapeHtml(item.id)}">${STATUS_LIST.map((status) => `<option value="${status}" ${status === (item.status || "Pendente") ? "selected" : ""}>${status}</option>`).join("")}</select></td></tr>`).join("");
