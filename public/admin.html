@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administração | Lajeadense Vidros</title>
+  <link rel="icon" href="assets/logo-empresa-transparent.png" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body class="admin-page">
+  <main class="admin-layout">
+    <section class="admin-login" id="admin-login-view">
+      <img class="admin-logo" src="assets/logo-empresa-transparent.png" alt="Lajeadense Vidros" />
+      <div class="admin-login-copy">
+        <span class="eyebrow">Área restrita</span>
+        <h1>Painel administrativo</h1>
+        <p>Acompanhe os registros de inconformidades da Lajeadense Vidros.</p>
+      </div>
+      <form class="admin-login-card" id="admin-login-form">
+        <div class="admin-lock" aria-hidden="true">&#9679;</div>
+        <h2>Entrar</h2>
+        <p class="admin-muted">Use suas credenciais de administrador.</p>
+        <label class="admin-field">Login<input id="admin-user" type="text" autocomplete="username" required /></label>
+        <label class="admin-field">Senha<input id="admin-password" type="password" autocomplete="current-password" required /></label>
+        <p class="admin-error" id="admin-login-error" hidden></p>
+        <button class="btn btn-primary btn-block" type="submit">Acessar painel</button>
+      </form>
+    </section>
+
+    <section class="admin-dashboard" id="admin-dashboard-view" hidden>
+      <header class="admin-header">
+        <div class="admin-brand"><img src="assets/logo-empresa-transparent.png" alt="Lajeadense Vidros" /><div><span>ADMINISTRAÇÃO</span><strong>Controle de Inconformidades</strong></div></div>
+        <div class="admin-actions"><span id="admin-session-user"></span><button class="btn btn-secondary btn-sm" id="admin-logout">Sair</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="admin-heading"><div><span class="eyebrow">Visão geral</span><h1>Registros de inconformidades</h1></div><button class="btn btn-secondary btn-sm" id="admin-refresh">Atualizar</button></div>
+        <div class="admin-kpis"><article><span>Total de registros</span><strong id="admin-total">0</strong></article><article><span>Clientes envolvidos</span><strong id="admin-clients">0</strong></article><article><span>Causas registradas</span><strong id="admin-causes">0</strong></article></div>
+        <div class="admin-toolbar"><input id="admin-search" type="search" placeholder="Buscar por nome, cliente ou inconformidade..." /><span id="admin-count">0 registros</span></div>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>DataHora</th><th>Nome</th><th>Inconformidade</th><th>Cliente</th><th>Observações</th></tr></thead><tbody id="admin-tbody"></tbody></table><p class="admin-empty" id="admin-empty" hidden>Nenhum registro encontrado.</p></div>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>
