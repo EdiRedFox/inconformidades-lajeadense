@@ -4,7 +4,7 @@ import { createRegistro } from "./api.js";
 import { clearIdentity } from "./session.js";
 
 let mounted = false;
-let currentPhoto = null; // { dataUrl, sizeKB, name }
+let currentPhotos = [];
 
 export function renderRegistrar(ctx) {
   if (mounted) return;
@@ -27,14 +27,10 @@ function mount(ctx) {
     causaOutro: document.getElementById("r-causa-outro"),
     descricao: document.getElementById("r-descricao"),
     cliente: document.getElementById("r-cliente"),
-    cliente: document.getElementById("r-cliente"),
     pedido: document.getElementById("r-pedido"),
     foto: document.getElementById("r-foto"),
     photoDrop: document.getElementById("photo-drop"),
-    photoPreview: document.getElementById("photo-preview"),
-    photoPreviewImg: document.getElementById("photo-preview-img"),
-    photoPreviewMeta: document.getElementById("photo-preview-meta"),
-    photoRemove: document.getElementById("photo-remove"),
+    photoPreviewList: document.getElementById("photo-preview-list"),
     observacao: document.getElementById("r-observacao"),
     btnRegistrar: document.getElementById("btn-registrar"),
     confirmIdValue: document.getElementById("confirm-id-value"),
@@ -69,12 +65,11 @@ function mount(ctx) {
     els.causaOutroField.hidden = true;
     els.descricao.value = "";
     els.cliente.value = "";
-    els.cliente.value = "";
     els.pedido.value = "";
     els.observacao.value = "";
     els.foto.value = "";
-    currentPhoto = null;
-    els.photoPreview.classList.remove("is-visible");
+    currentPhotos = [];
+    renderPhotoPreviews(els);
     document.querySelectorAll("#registrar-form .field").forEach((f) => f.classList.remove("has-error"));
   }
   resetForm();
@@ -86,23 +81,15 @@ function mount(ctx) {
   });
 
   // ---- Foto: seleção + drag&drop + compressão client-side ----
-  function handleFile(file) {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      showToast("Selecione um arquivo de imagem.", "error");
-      return;
-    }
-    compressImage(file, 1280, 0.72)
-      .then(({ dataUrl, sizeKB }) => {
-        currentPhoto = { dataUrl, sizeKB, name: file.name };
-        els.photoPreviewImg.src = dataUrl;
-        els.photoPreviewMeta.textContent = `${file.name} · ${sizeKB} KB`;
-        els.photoPreview.classList.add("is-visible");
-      })
-      .catch(() => showToast("Não foi possível processar a imagem.", "error"));
+  function handleFiles(files) {
+    const selected = Array.from(files || []).filter((file) => file.type.startsWith("image/"));
+    if (selected.length !== Array.from(files || []).length) showToast("Arquivos que não são imagens foram ignorados.", "error");
+    Promise.all(selected.map((file) => compressImage(file, 1280, 0.72).then(({ dataUrl, sizeKB }) => ({ dataUrl, sizeKB, name: file.name }))))
+      .then((photos) => { currentPhotos.push(...photos); renderPhotoPreviews(els); })
+      .catch(() => showToast("Não foi possível processar uma das imagens.", "error"));
   }
 
-  els.foto.addEventListener("change", () => handleFile(els.foto.files?.[0]));
+  els.foto.addEventListener("change", () => handleFiles(els.foto.files));
   els.photoDrop.addEventListener("dragover", (e) => {
     e.preventDefault();
     els.photoDrop.style.borderColor = "var(--red)";
@@ -113,12 +100,7 @@ function mount(ctx) {
   els.photoDrop.addEventListener("drop", (e) => {
     e.preventDefault();
     els.photoDrop.style.borderColor = "";
-    handleFile(e.dataTransfer.files?.[0]);
-  });
-  els.photoRemove.addEventListener("click", () => {
-    currentPhoto = null;
-    els.foto.value = "";
-    els.photoPreview.classList.remove("is-visible");
+    handleFiles(e.dataTransfer.files);
   });
 
   // ---- Submit ----
@@ -146,7 +128,7 @@ function mount(ctx) {
       cliente: els.cliente.value.trim(),
       pedido: els.pedido.value.trim(),
       observacao: els.observacao.value.trim(),
-      fotoBase64: currentPhoto ? currentPhoto.dataUrl : null,
+      fotosBase64: currentPhotos.map((photo) => photo.dataUrl),
     };
 
     els.btnRegistrar.disabled = true;
@@ -187,6 +169,11 @@ function mount(ctx) {
     clearIdentity();
     window.location.href = "index.html";
   });
+}
+
+function renderPhotoPreviews(els) {
+  els.photoPreviewList.innerHTML = currentPhotos.map((photo, index) => `<div class="photo-preview"><img src="${photo.dataUrl}" alt="Prévia do anexo ${index + 1}" /><div class="meta">${photo.name} · ${photo.sizeKB} KB</div><button type="button" class="icon-btn" data-photo-index="${index}" title="Remover anexo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>`).join("");
+  els.photoPreviewList.querySelectorAll("[data-photo-index]").forEach((button) => button.addEventListener("click", () => { currentPhotos.splice(Number(button.dataset.photoIndex), 1); renderPhotoPreviews(els); }));
 }
 
 function validate(els) {

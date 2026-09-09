@@ -23,15 +23,17 @@ module.exports = async (req, res) => {
       const existentes = await sheetsLib.readAll();
       const id = sheetsLib.nextId(existentes.map((r) => r.id));
 
-      let fotoUrl = "";
-      if (body.fotoBase64) {
+      const fotoUrls = [];
+      const fotosBase64 = Array.isArray(body.fotosBase64) ? body.fotosBase64 : body.fotoBase64 ? [body.fotoBase64] : [];
+      for (const [index, fotoBase64] of fotosBase64.entries()) {
         try {
-          fotoUrl = await uploadPhoto(body.fotoBase64, `${id}.jpg`);
+          const url = await uploadPhoto(fotoBase64, `${id}-${index + 1}.jpg`);
+          if (url) fotoUrls.push(url);
         } catch (err) {
-          // Não falha o registro inteiro por causa da foto — apenas segue sem ela.
           console.error("Falha ao enviar foto para o Drive:", err.message);
         }
       }
+      const anexos = fotoUrls.length ? `Anexos:\n${fotoUrls.join("\n")}` : "";
 
       const registro = {
         id,
@@ -44,8 +46,9 @@ module.exports = async (req, res) => {
         descricao: String(body.descricao).trim(),
         cliente: body.cliente ? String(body.cliente).trim() : "",
         pedido: body.pedido ? String(body.pedido).trim() : "",
-        fotoUrl,
-        observacao: body.observacao ? String(body.observacao).trim() : "",
+        fotoUrl: fotoUrls[0] || "",
+        fotoUrls,
+        observacao: [body.observacao ? String(body.observacao).trim() : "", anexos].filter(Boolean).join("\n\n"),
         prioridade: "",
         status: "Aberta",
         criadoEm: new Date().toISOString(),
