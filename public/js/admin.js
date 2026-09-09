@@ -90,7 +90,7 @@ function render() {
   document.getElementById("admin-clients").textContent = clients.size;
   document.getElementById("admin-count").textContent = `${filtered.length} registro${filtered.length === 1 ? "" : "s"}`;
   empty.hidden = filtered.length > 0;
-  tbody.innerHTML = filtered.map((item) => `<tr><td>${escapeHtml([item.data, item.hora].filter(Boolean).join(" "))}</td><td>${escapeHtml(item.responsavel)}</td><td>${escapeHtml([item.causa, item.descricao].filter(Boolean).join(": "))}</td><td>${escapeHtml(item.cliente)}</td><td>${escapeHtml(item.observacao || "-")}</td><td><select class="admin-status" data-id="${escapeHtml(item.id)}">${STATUS_LIST.map((status) => `<option value="${status}" ${status === (item.status || "Pendente") ? "selected" : ""}>${status}</option>`).join("")}</select></td></tr>`).join("");
+  tbody.innerHTML = filtered.map((item) => `<tr><td><strong>${escapeHtml(item.id || "-")}</strong></td><td>${escapeHtml([item.data, item.hora].filter(Boolean).join(" "))}</td><td>${escapeHtml(item.responsavel)}</td><td>${escapeHtml([item.causa, item.descricao].filter(Boolean).join(": "))}</td><td>${escapeHtml(item.cliente)}</td><td>${escapeHtml(item.observacao || "-")}</td><td><select class="admin-status" data-id="${escapeHtml(item.id)}">${STATUS_LIST.map((status) => `<option value="${status}" ${status === (item.status || "Pendente") ? "selected" : ""}>${status}</option>`).join("")}</select></td></tr>`).join("");
   tbody.querySelectorAll(".admin-status").forEach((select) => select.addEventListener("change", () => updateStatus(select)));
   renderIndicators(filtered);
 }
