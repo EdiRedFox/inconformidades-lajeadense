@@ -85,4 +85,5 @@ loginForm.addEventListener("submit", login);
 document.getElementById("admin-refresh").addEventListener("click", () => loadRecords().catch((error) => showLoginError(error.message)));
 document.getElementById("admin-logout").addEventListener("click", logout);
 search.addEventListener("input", render);
-if (sessionStorage.getItem(tokenKey)) showDashboard().catch(() => logout());
+sessionStorage.removeItem(tokenKey);
+sessionStorage.removeItem(userKey);
