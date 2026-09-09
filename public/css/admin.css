@@ -51,7 +51,9 @@ body.admin-page { min-height: 100vh; background: #0f2536 url("../assets/fundo-ap
 .admin-toolbar span { color: var(--text-muted); font-size: 13px; }
 .admin-table-wrap { background: var(--white); border: 1px solid var(--gray-200); border-radius: 12px; overflow: auto; box-shadow: var(--shadow-sm); }
 .admin-table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 13.5px; }
-.admin-table th { text-align: left; color: var(--text-soft); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; padding: 14px 16px; border-bottom: 1px solid var(--gray-200); white-space: nowrap; }
+.admin-table th { text-align: left; color: var(--text-soft); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; padding: 10px 12px; border-bottom: 1px solid var(--gray-200); white-space: nowrap; vertical-align: top; }
+.admin-table th:has(.column-filter) { min-width: 135px; }
+.column-filter { display: block; width: 100%; margin-top: 7px; border: 1px solid var(--gray-300); border-radius: 6px; padding: 6px 7px; color: var(--text); background: var(--white); font: inherit; font-size: 11px; text-transform: none; letter-spacing: 0; }
 .admin-table td { padding: 15px 16px; border-bottom: 1px solid var(--gray-100); vertical-align: top; }
 .admin-status { border: 1px solid var(--gray-300); border-radius: 7px; padding: 7px 9px; color: var(--text); background: var(--white); font: inherit; font-size: 12px; }
 .admin-table tbody tr:hover { background: var(--gray-100); }

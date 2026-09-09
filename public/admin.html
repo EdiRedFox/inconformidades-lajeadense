@@ -47,7 +47,7 @@
           <button class="btn btn-ghost btn-sm" id="admin-clear-filters" type="button">Limpar filtros</button>
         </div>
         <div class="admin-toolbar"><input id="admin-search" type="search" placeholder="Buscar por inconformidade ou observação..." /><span id="admin-count">0 registros</span></div>
-        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Nº</th><th>DataHora</th><th>Nome</th><th>Inconformidade</th><th>Cliente</th><th>Observações</th><th>Status</th></tr></thead><tbody id="admin-tbody"></tbody></table><p class="admin-empty" id="admin-empty" hidden>Nenhum registro encontrado.</p></div>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Nº</th><th>DataHora<input class="column-filter" id="admin-column-date" type="date" aria-label="Filtrar por data" /></th><th>Nome<input class="column-filter" id="admin-column-name" type="search" placeholder="Filtrar" aria-label="Filtrar por nome" /></th><th>Inconformidade</th><th>Cliente<input class="column-filter" id="admin-column-client" type="search" placeholder="Filtrar" aria-label="Filtrar por cliente" /></th><th>Observações</th><th>Status<select class="column-filter" id="admin-column-status" aria-label="Filtrar por status"><option value="">Todos</option></select></th></tr></thead><tbody id="admin-tbody"></tbody></table><p class="admin-empty" id="admin-empty" hidden>Nenhum registro encontrado.</p></div>
       </div>
     </section>
   </main>

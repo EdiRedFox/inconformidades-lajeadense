@@ -12,6 +12,10 @@ const dateTo = document.getElementById("admin-date-to");
 const nameFilter = document.getElementById("admin-name-filter");
 const clientFilter = document.getElementById("admin-client-filter");
 const statusFilter = document.getElementById("admin-status-filter");
+const columnDate = document.getElementById("admin-column-date");
+const columnName = document.getElementById("admin-column-name");
+const columnClient = document.getElementById("admin-column-client");
+const columnStatus = document.getElementById("admin-column-status");
 let registros = [];
 const STATUS_LIST = ["Aberta", "Pendente", "Em análise", "Em tratamento", "Resolvido", "Resolvida"];
 let statusChart = null;
@@ -65,7 +69,9 @@ async function loadRecords() {
   }
   if (!response.ok) throw new Error(data.error || "Não foi possível carregar os registros.");
   registros = data.registros || [];
-  statusFilter.innerHTML = '<option value="">Todos</option>' + [...new Set(registros.map((item) => item.status || "Pendente"))].sort().map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`).join("");
+  const statusOptions = [...new Set(registros.map((item) => item.status || "Pendente"))].sort().map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`).join("");
+  statusFilter.innerHTML = '<option value="">Todos</option>' + statusOptions;
+  columnStatus.innerHTML = '<option value="">Todos</option>' + statusOptions;
   render();
 }
 
@@ -76,10 +82,14 @@ function render() {
   const from = dateFrom.value;
   const to = dateTo.value;
   const selectedStatus = statusFilter.value;
+  const columnStatusValue = columnStatus.value;
+  const columnDateValue = columnDate.value;
+  const columnNameValue = columnName.value.trim().toLowerCase();
+  const columnClientValue = columnClient.value.trim().toLowerCase();
   const filtered = registros.filter((item) => {
     const data = item.data || "";
     const searchable = [item.causa, item.descricao, item.observacao].join(" ").toLowerCase();
-    return (!term || searchable.includes(term)) && (!nameTerm || (item.responsavel || "").toLowerCase().includes(nameTerm)) && (!clientTerm || (item.cliente || "").toLowerCase().includes(clientTerm)) && (!from || data >= from) && (!to || data <= to) && (!selectedStatus || (item.status || "Pendente") === selectedStatus);
+    return (!term || searchable.includes(term)) && (!nameTerm || (item.responsavel || "").toLowerCase().includes(nameTerm)) && (!clientTerm || (item.cliente || "").toLowerCase().includes(clientTerm)) && (!from || data >= from) && (!to || data <= to) && (!selectedStatus || (item.status || "Pendente") === selectedStatus) && (!columnDateValue || data === columnDateValue) && (!columnNameValue || (item.responsavel || "").toLowerCase().includes(columnNameValue)) && (!columnClientValue || (item.cliente || "").toLowerCase().includes(columnClientValue)) && (!columnStatusValue || (item.status || "Pendente") === columnStatusValue);
   });
   const clients = new Set(filtered.map((item) => item.cliente).filter(Boolean));
   const open = filtered.filter((item) => !["Resolvido", "Resolvida"].includes(item.status)).length;
@@ -139,7 +149,7 @@ function logout() {
 loginForm.addEventListener("submit", login);
 document.getElementById("admin-refresh").addEventListener("click", () => loadRecords().catch((error) => showLoginError(error.message)));
 document.getElementById("admin-logout").addEventListener("click", logout);
-[search, dateFrom, dateTo, nameFilter, clientFilter, statusFilter].forEach((control) => control.addEventListener("input", render));
-document.getElementById("admin-clear-filters").addEventListener("click", () => { [search, dateFrom, dateTo, nameFilter, clientFilter, statusFilter].forEach((control) => { control.value = ""; }); render(); });
+[search, dateFrom, dateTo, nameFilter, clientFilter, statusFilter, columnDate, columnName, columnClient, columnStatus].forEach((control) => control.addEventListener("input", render));
+document.getElementById("admin-clear-filters").addEventListener("click", () => { [search, dateFrom, dateTo, nameFilter, clientFilter, statusFilter, columnDate, columnName, columnClient, columnStatus].forEach((control) => { control.value = ""; }); render(); });
 sessionStorage.removeItem(tokenKey);
 sessionStorage.removeItem(userKey);
