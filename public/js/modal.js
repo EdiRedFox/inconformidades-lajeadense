@@ -1,6 +1,5 @@
-import { STATUS_LIST, STATUS_CLASS, PRIORITY_CLASS } from "./constants.js";
-import { escapeHtml, formatDateBR, showToast } from "./utils.js";
-import { updateRegistroStatus } from "./api.js";
+import { STATUS_CLASS, PRIORITY_CLASS } from "./constants.js";
+import { escapeHtml, formatDateBR } from "./utils.js";
 
 const overlay = document.getElementById("modal-overlay");
 const titleEl = document.getElementById("modal-title");
@@ -60,39 +59,6 @@ export function openDetailModal(registro, { onStatusChanged } = {}) {
     </div>
   `;
 
-  const selectId = "modal-status-select";
-  footerEl.innerHTML = `
-    <div class="field" style="margin:0;min-width:190px;">
-      <label for="${selectId}">Atualizar status</label>
-      <select class="input" id="${selectId}">
-        ${STATUS_LIST.map((s) => `<option value="${s}" ${s === registro.status ? "selected" : ""}>${s}</option>`).join("")}
-      </select>
-    </div>
-    <button class="btn btn-primary btn-sm" id="modal-save-status">Salvar</button>
-  `;
-
-  document.getElementById("modal-save-status").addEventListener("click", async (e) => {
-    const btn = e.currentTarget;
-    const newStatus = document.getElementById(selectId).value;
-    if (newStatus === registro.status) {
-      close();
-      return;
-    }
-    btn.disabled = true;
-    btn.textContent = "Salvando...";
-    try {
-      await updateRegistroStatus(registro.id, newStatus);
-      showToast(`Status de ${registro.id} atualizado para "${newStatus}".`, "success");
-      registro.status = newStatus;
-      close();
-      onStatusChanged?.();
-      window.dispatchEvent(new Event("lajeadense:reload"));
-    } catch (err) {
-      showToast(err.message || "Não foi possível atualizar o status.", "error");
-      btn.disabled = false;
-      btn.textContent = "Salvar";
-    }
-  });
-
+  footerEl.innerHTML = `<span class="text-muted">Status alterado somente pela administração.</span>`;
   overlay.hidden = false;
 }

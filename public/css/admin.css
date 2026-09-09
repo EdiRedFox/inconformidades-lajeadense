@@ -36,6 +36,7 @@ body.admin-page { min-height: 100vh; background: #0f2536 url("../assets/fundo-ap
 .admin-table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 13.5px; }
 .admin-table th { text-align: left; color: var(--text-soft); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; padding: 14px 16px; border-bottom: 1px solid var(--gray-200); white-space: nowrap; }
 .admin-table td { padding: 15px 16px; border-bottom: 1px solid var(--gray-100); vertical-align: top; }
+.admin-status { border: 1px solid var(--gray-300); border-radius: 7px; padding: 7px 9px; color: var(--text); background: var(--white); font: inherit; font-size: 12px; }
 .admin-table tbody tr:hover { background: var(--gray-100); }
 .admin-empty { color: var(--text-muted); text-align: center; padding: 46px 20px; }
 body[data-theme="dark"] .admin-dashboard { background: rgba(12,21,29,.9); }

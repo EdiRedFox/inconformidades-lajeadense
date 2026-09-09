@@ -8,6 +8,7 @@ const tbody = document.getElementById("admin-tbody");
 const empty = document.getElementById("admin-empty");
 const search = document.getElementById("admin-search");
 let registros = [];
+const STATUS_LIST = ["Aberta", "Pendente", "Em análise", "Em tratamento", "Resolvido", "Resolvida"];
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
@@ -71,7 +72,25 @@ function render() {
   document.getElementById("admin-causes").textContent = causes.size;
   document.getElementById("admin-count").textContent = `${filtered.length} registro${filtered.length === 1 ? "" : "s"}`;
   empty.hidden = filtered.length > 0;
-  tbody.innerHTML = filtered.map((item) => `<tr><td>${escapeHtml([item.data, item.hora].filter(Boolean).join(" "))}</td><td>${escapeHtml(item.responsavel)}</td><td>${escapeHtml([item.causa, item.descricao].filter(Boolean).join(": "))}</td><td>${escapeHtml(item.cliente)}</td><td>${escapeHtml(item.observacao || "-")}</td></tr>`).join("");
+  tbody.innerHTML = filtered.map((item) => `<tr><td>${escapeHtml([item.data, item.hora].filter(Boolean).join(" "))}</td><td>${escapeHtml(item.responsavel)}</td><td>${escapeHtml([item.causa, item.descricao].filter(Boolean).join(": "))}</td><td>${escapeHtml(item.cliente)}</td><td>${escapeHtml(item.observacao || "-")}</td><td><select class="admin-status" data-id="${escapeHtml(item.id)}">${STATUS_LIST.map((status) => `<option value="${status}" ${status === (item.status || "Pendente") ? "selected" : ""}>${status}</option>`).join("")}</select></td></tr>`).join("");
+  tbody.querySelectorAll(".admin-status").forEach((select) => select.addEventListener("change", () => updateStatus(select)));
+}
+
+async function updateStatus(select) {
+  const previous = registros.find((item) => item.id === select.dataset.id)?.status || "Pendente";
+  select.disabled = true;
+  try {
+    const response = await fetch(`/api/admin-registros?id=${encodeURIComponent(select.dataset.id)}`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionStorage.getItem(tokenKey)}` }, body: JSON.stringify({ status: select.value }) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Não foi possível atualizar o status.");
+    const item = registros.find((record) => record.id === select.dataset.id);
+    if (item) item.status = select.value;
+  } catch (error) {
+    select.value = previous;
+    alert(error.message);
+  } finally {
+    select.disabled = false;
+  }
 }
 
 function logout() {
